@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        {% block title %}Учебное приложение{% endblock %}
+    </title>
+
+    <!-- Стили Tabler -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="layout-boxed bg-azure-lt" style="--tblr-body-bg: #f8fafc;">
+    <div class="page">
+        <!-- Темно-пастельно-голубая шапка -->
+        <header class="navbar navbar-expand-md navbar-light bg-blue-lt border-bottom d-print-none shadow-sm">
+            <div class="container-xl">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="navbar-brand me-4 text-blue fw-bold" href="{% url 'profile' %}">
+                    DjangoApp
+                </a>
+                <div class="collapse navbar-collapse" id="navbar-menu">
+                    <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium" href="{% url 'profile' %}">
+                                    <span class="nav-link-title">Профиль</span>
+                                </a>
+                            </li>
+
+                            <!-- Старый дашборд -->
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium" href="{% url 'dashboard' %}">
+                                    <span class="nav-link-title">Дашборд</span>
+                                </a>
+                            </li>
+
+                            <!-- Отдельная новая вкладка заявки -->
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium" href="{% url 'tickets:dashboard' %}">
+                                    <span class="nav-link-title">Заявки</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium" href="{% url 'department_list' %}">
+                                    <span class="nav-link-title">Факультеты</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium" href="{% url 'academic_group_list' %}">
+                                    <span class="nav-link-title">Группы</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-medium" href="{% url 'course_list' %}">
+                                    <span class="nav-link-title">Курсы</span>
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Блок пользователя -->
+                        {% if user.is_authenticated %}
+                        <div class="navbar-nav ms-auto d-flex align-items-center">
+                            <span class="nav-link me-2 text-muted">
+                                Пользователь: <strong class="badge bg-purple-lt text-purple ms-1">{{ user.username }}</strong>
+                            </span>
+                            <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-pink-lt btn-sm rounded-pill" type="submit">
+                                    Выйти
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-wrapper my-4">
+            <div class="container-xl page-container">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты Tabler -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+</body>
+</html>

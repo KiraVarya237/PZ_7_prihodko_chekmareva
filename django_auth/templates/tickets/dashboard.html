@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-xl py-4">
+    <h1 class="mb-4">Центр управления заявками</h1>
+    {% csrf_token %}
+
+    <div id="message"></div>
+
+    <!-- Форма создания -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="ticket-form">
+                <div class="mb-3">
+                    <label class="form-label">Название заявки</label>
+                    <input id="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Категория</label>
+                    <select id="category" class="form-select" required></select>
+                </div>
+                <button class="btn btn-primary" type="submit">Создать заявку</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Список заявок -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">Список заявок</h3>
+            <select id="status-filter" class="form-select w-auto">
+                <option value="">Все статусы</option>
+                <option value="new">Новые</option>
+                <option value="progress">В работе</option>
+                <option value="done">Выполненные</option>
+            </select>
+        </div>
+        <div class="card-body">
+            <div id="loading" hidden>Загрузка данных...</div>
+            <div id="tickets-list"></div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

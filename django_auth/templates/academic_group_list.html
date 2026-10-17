@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Учебные группы{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Учебные группы</h3>
+        {% if is_methodist %}
+        <a class="btn btn-primary btn-sm" href="{% url 'academic_group_create' %}">
+            + Добавить группу
+        </a>
+        {% endif %}
+    </div>
+
+    <!--Адаптивная обертка таблицы -->
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название группы</th>
+                    <th>Факультет</th>
+                    {% if is_methodist %}
+                    <th class="text-end">Действия</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td><span class="text-muted">#{{ group.id }}</span></td>
+                    <td><strong>{{ group.name }}</strong></td>
+                    <td>
+                        <span class="badge bg-blue-lt">
+                            {{ group.department.name }}
+                        </span>
+                    </td>
+                    {% if is_methodist %}
+                    <td class="text-end">
+                        <a class="btn btn-outline-teal btn-sm rounded-pill me-1" href="{% url 'academic_group_update' group.id %}">
+                            Изменить
+                        </a>
+                        <a  class="btn btn-outline-pink btn-sm rounded-pill" href="{% url 'academic_group_delete' group.id %}">
+                            Удалить
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{% if is_methodist %}4{% else %}3{% endif %}" class="text-center text-muted py-4">
+                        Группы пока не добавлены
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

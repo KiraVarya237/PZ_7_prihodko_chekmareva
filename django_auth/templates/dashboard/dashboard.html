@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Аналитика и Дашборды{% endblock %}
+
+{% block content %}
+<!-- Подключаем Chart.js для отрисовки динамических графиков -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-xl">
+    <!-- Заголовок страницы и блок фильтрации -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="text-blue fw-bold m-0">Аналитика учебного портала</h2>
+            <div class="text-muted">Динамические показатели на основе данных системы</div>
+        </div>
+
+        <!-- Интерактивный фильтр по факультетам -->
+        {% if departments %}
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label for="departmentSelect" class="form-label mb-0 text-nowrap text-muted fw-medium">
+                Факультет:
+            </label>
+            <select name="department" id="departmentSelect" class="form-select" onchange="this.form.submit()">
+                <option value="">Все факультеты</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"s" %}selected{% endif %}>
+                        {{ dept.title|default:dept.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if selected_department %}
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" title="Сбросить фильтр">
+                    ✕
+                </a>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- 1. Секция метрик (карточки со статистикой через компонент stat_card.html) -->
+    <div class="row row-cards mb-4">
+        <div class="col-sm-6 col-lg-3">
+            {% include 'dashboard/components/stat_card.html' with title="Всего курсов" value=total_courses color="teal" %}
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            {% include 'dashboard/components/stat_card.html' with title="Учебных групп" value=total_groups color="purple" %}
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            {% include 'dashboard/components/stat_card.html' with title="Факультетов" value=total_departments color="azure" %}
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            {% include 'dashboard/components/stat_card.html' with title="Пользователей" value=total_users color="pink" %}
+        </div>
+    </div>
+
+    <!-- 2. Секция дашбордов (3 Динамических графика через компонент chart_card.html) -->
+    <div class="row row-cards">
+        <!-- Дашборд 1: График курсов по факультетам -->
+        <div class="col-lg-6 mb-4">
+            {% include 'dashboard/components/chart_card.html' with title="Курсы по факультетам" chart_id="coursesChart" %}
+        </div>
+
+        <!-- Дашборд 2: График групп по факультетам -->
+        <div class="col-lg-6 mb-4">
+            {% include 'dashboard/components/chart_card.html' with title="Группы по факультетам" chart_id="groupsChart" %}
+        </div>
+
+        <!-- Дашборд 3: Соотношение пользователей по ролям -->
+        <div class="col-lg-12 mb-4">
+            {% include 'dashboard/components/chart_card.html' with title="Структура пользователей приложения" chart_id="usersChart" %}
+        </div>
+    </div>
+</div>
+
+<!-- Инициализация Chart.js с передачей реальных данных из Django -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Пастельная палитра для графиков
+        const pastelColors = {
+            teal: 'rgba(32, 201, 151, 0.75)',
+            tealBorder: 'rgba(32, 201, 151, 1)',
+            purple: 'rgba(174, 62, 201, 0.75)',
+            purpleBorder: 'rgba(174, 62, 201, 1)',
+            pink: 'rgba(214, 51, 108, 0.75)',
+            pinkBorder: 'rgba(214, 51, 108, 1)',
+            blue: 'rgba(66, 153, 225, 0.75)',
+            blueBorder: 'rgba(66, 153, 225, 1)',
+            yellow: 'rgba(245, 159, 0, 0.75)',
+            yellowBorder: 'rgba(245, 159, 0, 1)'
+        };
+
+        // ДАШБОРД 1: Курсы по факультетам ---
+        const coursesCanvas = document.getElementById('coursesChart');
+        if (coursesCanvas) {
+            new Chart(coursesCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ dept_course_labels|safe }},
+                    datasets: [{
+                        data: {{ dept_course_data|safe }},
+                        backgroundColor: [pastelColors.teal, pastelColors.purple, pastelColors.pink, pastelColors.blue, pastelColors.yellow]
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        // --- ДАШБОРД 2: Группы по факультетам  ---
+        const groupsCanvas = document.getElementById('groupsChart');
+        if (groupsCanvas) {
+            new Chart(groupsCanvas, {
+                type: 'bar',
+                data: {
+                    labels: {{ dept_group_labels|safe }},
+                    datasets: [{
+                        label: 'Количество групп',
+                        data: {{ dept_group_data|safe }},
+                        backgroundColor: pastelColors.blue,
+                        borderColor: pastelColors.blueBorder,
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        // --- ДАШБОРД 3: Роли пользователей  ---
+        const usersCanvas = document.getElementById('usersChart');
+        if (usersCanvas) {
+            new Chart(usersCanvas, {
+                type: 'pie',
+                data: {
+                    labels: {{ role_labels|safe }},
+                    datasets: [{
+                        data: {{ role_data|safe }},
+                        backgroundColor: [pastelColors.pink, pastelColors.teal, pastelColors.purple]
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    });
+</script>
+{% endblock %}

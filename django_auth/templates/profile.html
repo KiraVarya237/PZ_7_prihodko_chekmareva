@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Профиль пользователя</h3>
+            </div>
+
+            <div class="card-body">
+                <!-- Блок с аватаркой и именем -->
+                <div class="d-flex align-items-center mb-4">
+                    <span class="avatar avatar-lg me-3 bg-blue-lt">
+                        {{ user.username|slice:":1"|upper }}
+                    </span>
+                    <div>
+                        <h3 class="m-0">{{ user.username }}</h3>
+                        <div class="text-muted fs-5">
+                            {% if user.email %}{{ user.email }}{% else %}Учебный аккаунт{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted">Роль и права доступа:</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        {% if user.is_superuser %}
+                            <span class="badge bg-red-lt">
+                                 Администратор
+                            </span>
+                        {% endif %}
+
+                        {% if is_methodist %}
+                            <span class="badge bg-green-lt">
+                                 Методист
+                            </span>
+                        {% else %}
+                            <span class="badge bg-blue-lt">
+                                 Студент
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Подвал карточки с быстрой навигацией -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <a class="btn btn-primary" href="{% url 'course_list' %}">
+                    Перейти к курсам
+                </a>
+                <a class="btn btn-outline-secondary" href="{% url 'department_list' %}">
+                    Факультеты
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
